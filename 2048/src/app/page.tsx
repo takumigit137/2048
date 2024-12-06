@@ -25,12 +25,27 @@ export default function Home() {
     }
     return totalAll
   }
+  const [pressedButton, setPressedButton] = useState<string>("")
+  const getButtonClick = (direction: string) => {
+    setPressedButton(direction)
+    console.log(pressedButton)
+  }
 
   return (
-    <div className="grid-container">
+    <div className="grid-container">      
       <h1>2048</h1>
       <p className="score">Score:{getScore(currentGrid)}</p>
-      <div className="grid">{createGrid(currentGrid)}</div>
+      <div className="button-row">
+        <button onClick={()=> getButtonClick("up")} className="button-row hover:bg-sky-700"> ↑ </button>
+      </div>
+      <div className="main-row">
+        <button onClick={() => getButtonClick("left")} className="side-button hover:bg-sky-700"> ← </button>
+        <div className="grid">{createGrid(currentGrid)}</div>
+        <button onClick={() => getButtonClick("right")} className="side-button hover:bg-sky-700"> → </button>
+      </div>
+      <div className="button-row">
+        <button onClick={()=> getButtonClick("down")} className="button-row hover:bg-sky-700"> ↓ </button>
+      </div>
     </div>
 
   );
