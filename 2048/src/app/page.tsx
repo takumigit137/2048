@@ -65,32 +65,34 @@ export default function Home() {
 
   const moveGridNumbers = (grid: number[][], direction: string) => {
     if (direction === "up") {
-      setCurrentGrid(moveUp(grid));
+      setCurrentGrid(updateUp(grid));
     }
     else if (direction === "down") {
-      setCurrentGrid(moveDown(grid));
+      setCurrentGrid(updateDown(grid));
     }
     else if (direction === "right") {
-      setCurrentGrid(moveRight(grid));
+      setCurrentGrid(updateRight(grid));
     }
     else if (direction === "left") {
-      setCurrentGrid(moveLeft(grid));
+      setCurrentGrid(updateLeft(grid));
     }
   }
 
-  const moveUp = (grid: number[][]) => {
+  const updateUp = (grid: number[][]) => {
+    for (let rowi=1;rowi<rows;rowi++) {
+      
+    }
+  }
+
+  const updateDown = (grid: number[][]) => {
     
   }
 
-  const moveDown = (grid: number[][]) => {
+  const updateRight = (grid: number[][]) => {
     
   }
 
-  const moveRight = (grid: number[][]) => {
-    
-  }
-
-  const moveLeft = (grid: number[][]) => {
+  const updateLeft = (grid: number[][]) => {
     
   }
 
