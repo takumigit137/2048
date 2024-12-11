@@ -14,11 +14,8 @@ export default function Home() {
     const randomTwoOrFourIndex = Math.floor(getNextRandomValue()*4);
     return (arrayTwoOrFour[randomTwoOrFourIndex])
   };
-  
 
-  const [userNumber, setUserNumber] = useState(0)
-
-  const [index, setIndex] = useState(userNumber);
+  const [index, setIndex] = useState(0);
 
   const getNextRandomValue = (): number => {
     if (index >= randomValues.length) {
@@ -80,7 +77,7 @@ export default function Home() {
 
   const moveGridNumbers = (grid: number[][], direction: string) => {
     if (direction === "up") {
-      setIndex((index+1)%100)
+      setIndex((index+1)%100);
       setCurrentGrid(updateUp(grid));
     }
     /*
@@ -104,25 +101,32 @@ export default function Home() {
     for (let colj=0;colj<cols;colj++) {
       // まずは0ある場所詰める
       for (let rowi=0;rowi<rows-1;rowi++) {
-        let loopCount = 0
+        let loopCount = 0;
+        // 全部0の列があること考慮して最大4回のforループで抜けるように
         while ((grid[rowi][colj] === 0 )&&(loopCount<4)) {
-          grid[rowi][colj] = grid[rowi+1][colj]
-          grid[rowi+1][colj] = 0
-          loopCount += 1
+          for (let k = rowi;k<rows-1;k++) {
+          grid[k][colj] = grid[k+1][colj];
+          }
+        loopCount += 1;
+        grid[rows-1][colj] = 0;
         }
       }
       // 次に上下が同じ数だったら合体する
-      for (let rowi=0;rowi<rows;rowi++) {
-        for (let rowk = 0; rowk < 3; rowk++) {
-          let sameCount = 0
-          if (grid[rowk][colj] === grid[rowk+1][colj]) {
-
-          }
+      for (let rowk=0;rowk<rows-1;rowk++) {
+        //同じやつが2個2組ずつ並んでる場合の処理
+        if ((rowk === 0)&&(grid[0][colj]===grid[1][colj])&&(grid[2][colj]===grid[3][colj])) {
+          grid[0][colj] = grid[0][colj]*2;
+          grid[1][colj] = grid[2][colj]*2;
+          grid[2][colj] = 0;
+          grid[3][colj] = 0;
+        }
+        //同じやつが2-3個1組並んでいる場合の処理
+        else if (grid[rowk][colj] === grid[rowk+1][colj]) {
+          grid[rowk][colj] = grid[rowk][colj] * 2;
+          grid[rowk+1][colj] = 0;
         }
       }
-
     }
-    // 最後に0になってる場所にランダムに2か4生成
     return grid
   }
 
@@ -139,9 +143,9 @@ export default function Home() {
   }
 
   const getButtonClick = (direction: string) => {
-    setPressedButton(direction)
-    moveGridNumbers(currentGrid,direction)
-    console.log(pressedButton)
+    setPressedButton(direction);
+    moveGridNumbers(currentGrid,direction);
+    console.log(pressedButton);
   }
 
   /*
