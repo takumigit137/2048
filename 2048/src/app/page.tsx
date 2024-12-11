@@ -1,6 +1,7 @@
 "use client"
 import "../styles/globals.css";
 import React, {use, useEffect, useState} from "react";
+import {randomValues} from "./randomValues"
 
 export default function Home() {
   const rows = 4;
@@ -10,10 +11,24 @@ export default function Home() {
   const [gameState, setGameState] = useState("")
 
   const randomTwoOrFour = () => {
-    const randomTwoOrFourIndex = Math.floor(Math.random()*4);
+    const randomTwoOrFourIndex = Math.floor(getNextRandomValue()*4);
     return (arrayTwoOrFour[randomTwoOrFourIndex])
   };
+  
 
+  const [userNumber, setUserNumber] = useState(0)
+
+  const [index, setIndex] = useState(userNumber);
+
+  const getNextRandomValue = (): number => {
+    if (index >= randomValues.length) {
+      setIndex(0); // 配列が足りない場合はリセット
+    }
+    const value = randomValues[index];
+    setIndex((prevIndex) => prevIndex + 1); // 次のインデックスに進む
+    return value;
+  };
+  
   const randomLocation = (currentGrid: number[][]): number[][] => {
     // グリッドの値が0になってる部分をランダムに2か4にする
     const emptyLocation: [number,number][] = []
@@ -25,7 +40,7 @@ export default function Home() {
     if (emptyLocation.length === 0) 
       {setGameState("Finish!");
       return currentGrid};
-    const randomIndex = Math.floor(Math.random() * emptyLocation.length)
+    const randomIndex = Math.floor(getNextRandomValue() * emptyLocation.length)
     currentGrid[emptyLocation[randomIndex][0]][emptyLocation[randomIndex][1]] = randomTwoOrFour()
     return currentGrid
   }
@@ -65,23 +80,50 @@ export default function Home() {
 
   const moveGridNumbers = (grid: number[][], direction: string) => {
     if (direction === "up") {
+      setIndex((index+1)%100)
       setCurrentGrid(updateUp(grid));
     }
+    /*
     else if (direction === "down") {
+      setIndex((index+2)%100)
       setCurrentGrid(updateDown(grid));
     }
     else if (direction === "right") {
+      setIndex((index+3)%100)
       setCurrentGrid(updateRight(grid));
     }
     else if (direction === "left") {
+      setIndex((index+4)%100)
       setCurrentGrid(updateLeft(grid));
     }
+    */
+    grid = randomLocation(grid)
   }
 
   const updateUp = (grid: number[][]) => {
-    for (let rowi=1;rowi<rows;rowi++) {
-      
+    for (let colj=0;colj<cols;colj++) {
+      // まずは0ある場所詰める
+      for (let rowi=0;rowi<rows-1;rowi++) {
+        let loopCount = 0
+        while ((grid[rowi][colj] === 0 )&&(loopCount<4)) {
+          grid[rowi][colj] = grid[rowi+1][colj]
+          grid[rowi+1][colj] = 0
+          loopCount += 1
+        }
+      }
+      // 次に上下が同じ数だったら合体する
+      for (let rowi=0;rowi<rows;rowi++) {
+        for (let rowk = 0; rowk < 3; rowk++) {
+          let sameCount = 0
+          if (grid[rowk][colj] === grid[rowk+1][colj]) {
+
+          }
+        }
+      }
+
     }
+    // 最後に0になってる場所にランダムに2か4生成
+    return grid
   }
 
   const updateDown = (grid: number[][]) => {
@@ -98,9 +140,15 @@ export default function Home() {
 
   const getButtonClick = (direction: string) => {
     setPressedButton(direction)
-    moveGridNumbers
+    moveGridNumbers(currentGrid,direction)
     console.log(pressedButton)
   }
+
+  /*
+  <div className="main-row">
+    <button onClick={()=> gridReset()} className="inline-flex h-12 items-center justify-center rounded-md bg-blue-500 px-6 font-large text-neutral-50 transition active:scale-110"> Reset </button>
+  </div>
+  */
 
   return (
     <div className="grid-container">      
