@@ -1,52 +1,45 @@
-"use client"
+"use client";
+
 import "../styles/globals.css";
 import React, {use, useEffect, useState} from "react";
-import {randomValues} from "./randomValues"
 
 export default function Home() {
   const rows = 4;
   const cols = 4;
-  const arrayTwoOrFour = [2,2,2,4]
+  const arrayTwoOrFour = [2,2,2,4];
 
-  const [gameState, setGameState] = useState("")
+  const [gameState, setGameState] = useState("");
 
   const randomTwoOrFour = () => {
-    const randomTwoOrFourIndex = Math.floor(getNextRandomValue()*4);
-    return (arrayTwoOrFour[randomTwoOrFourIndex])
+    const randomTwoOrFourIndex = Math.floor(Math.random()*4);
+    return (arrayTwoOrFour[randomTwoOrFourIndex]);
   };
 
-  const [index, setIndex] = useState(0);
-
-  const getNextRandomValue = (): number => {
-    if (index >= randomValues.length) {
-      setIndex(0); // 配列が足りない場合はリセット
-    }
-    const value = randomValues[index];
-    setIndex((prevIndex) => prevIndex + 1); // 次のインデックスに進む
-    return value;
-  };
-  
-  const randomLocation = (currentGrid: number[][]): number[][] => {
+  const randomLocation = (grid: number[][]): number[][] => {
     // グリッドの値が0になってる部分をランダムに2か4にする
-    const emptyLocation: [number,number][] = []
-    currentGrid.forEach((row, rowIndex) => {
+    const emptyLocation: [number,number][] = [];
+    grid.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
         if (cell === 0) emptyLocation.push([rowIndex, colIndex])
       });
     });
     if (emptyLocation.length === 0) 
       {setGameState("Finish!");
-      return currentGrid};
-    const randomIndex = Math.floor(getNextRandomValue() * emptyLocation.length)
-    currentGrid[emptyLocation[randomIndex][0]][emptyLocation[randomIndex][1]] = randomTwoOrFour()
-    return currentGrid
+      return grid};
+    const randomIndex = Math.floor(Math.random() * emptyLocation.length);
+    grid[emptyLocation[randomIndex][0]][emptyLocation[randomIndex][1]] = randomTwoOrFour();
+    return grid;
   }
 
   const [currentGrid, setCurrentGrid] = useState<number[][]>(() => {
     const allZeroGrid = Array.from({length: rows }, () => Array(cols).fill(0));
-    const initialGrid = randomLocation(allZeroGrid);
-    return initialGrid;
+    return allZeroGrid;
   });
+
+  useEffect (() => {
+    const initialGrid = Array.from({length: rows }, () => Array(cols).fill(0));
+    setCurrentGrid(randomLocation(initialGrid));
+  }, []);
 
   const Cell: React.FC<{value: number}> = ({value}) => {
     return (
@@ -56,46 +49,49 @@ export default function Home() {
     );
   };
 
-  const showGrid = (currentGrid: number[][]) => {
-    return currentGrid.map((row,rowIndex) => (
+  const showGrid = (grid: number[][]) => {
+    return grid.map((row,rowIndex) => (
       <div key={rowIndex} className = "row">
         {row.map((cell, colIndex) => (
           <Cell key={`${rowIndex}-${colIndex}`} value={cell} />
       ))}
       </div>
-    ))};
+    ))
+  };
   
-  const getScore = (currentGrid: number[][]) => {
+  const getScore = (grid: number[][]) => {
     let totalAll = 0;
     for (let rowi = 0; rowi < rows; rowi++) {
-      totalAll += currentGrid[rowi].reduce((sum, element) => sum + element);
+      totalAll += grid[rowi].reduce((sum, element) => sum + element);
     }
-    return totalAll
-  }
-
-  const [pressedButton, setPressedButton] = useState<string>("")
+    return totalAll;
+  };
 
   const moveGridNumbers = (grid: number[][], direction: string) => {
-    if (direction === "up") {
-      setIndex((index+1)%100);
-      setCurrentGrid(updateUp(grid));
+    let updatedGrid;
+    switch (direction) {
+      case "up":
+        updatedGrid = updateUp(grid);
+        break;
+      case "down":
+        updatedGrid = updateDown(grid);
+        break;
+      case "right":
+        updatedGrid = updateRight(grid);
+        break;
+      case "left":
+        updatedGrid = updateLeft(grid);
+        break;
+      default:
+        return;
     }
-    else if (direction === "down") {
-      setIndex((index+2)%100)
-      setCurrentGrid(updateDown(grid));
-    }
-    else if (direction === "right") {
-      setIndex((index+3)%100)
-      setCurrentGrid(updateRight(grid));
-    }
-    else if (direction === "left") {
-      setIndex((index+4)%100)
-      setCurrentGrid(updateLeft(grid));
-    }
-    grid = randomLocation(grid)
-  }
+    const newGrid = randomLocation(updatedGrid);
+    setCurrentGrid(newGrid);
+    console.log(currentGrid)
+  };
 
-  const updateUp = (grid: number[][]) => {
+  const updateUp = (inputGrid: number[][]) => {
+    const grid = inputGrid.map(row => [...row]);
     for (let colj=0;colj<cols;colj++) {
       // まずは0ある場所詰める
       for (let rowi=0;rowi<rows-1;rowi++) {
@@ -125,10 +121,11 @@ export default function Home() {
         }
       }
     }
-    return grid
-  }
+    return grid;
+  };
 
-  const updateDown = (grid: number[][]) => {
+  const updateDown = (inputGrid: number[][]) => {
+    const grid = inputGrid.map(row => [...row]);
     for (let colj = 0; colj < cols; colj++) {
       // まずは0ある場所詰める
       for (let rowi = rows - 1; rowi > 0; rowi--) {
@@ -159,10 +156,11 @@ export default function Home() {
         }
       }
     }
-    return grid
+    return grid;
   }
 
-const updateRight = (grid: number[][]) => {
+  const updateRight = (inputGrid: number[][]) => {
+    const grid = inputGrid.map(row => [...row]);
     for (let rowi = 0; rowi < rows; rowi++) {
       // まずは0ある場所詰める
       for (let colj = cols - 1; colj > 0; colj--) {
@@ -193,10 +191,11 @@ const updateRight = (grid: number[][]) => {
         }
       }
     }
-    return grid
+    return grid;
   }
 
-const updateLeft = (grid: number[][]) => {
+  const updateLeft = (inputGrid: number[][]) => {
+    const grid = inputGrid.map(row => [...row]);
     for (let rowi = 0; rowi < rows; rowi++) {
       // まずは0ある場所詰める
       for (let colj = 0; colj < cols - 1; colj++) {
@@ -227,20 +226,12 @@ const updateLeft = (grid: number[][]) => {
         }
       }
     }
-    return grid
-  }
+    return grid;
+    }
 
   const getButtonClick = (direction: string) => {
-    setPressedButton(direction);
     moveGridNumbers(currentGrid,direction);
-    console.log(pressedButton);
   }
-
-  /*
-  <div className="main-row">
-    <button onClick={()=> gridReset()} className="inline-flex h-12 items-center justify-center rounded-md bg-blue-500 px-6 font-large text-neutral-50 transition active:scale-110"> Reset </button>
-  </div>
-  */
 
   return (
     <div className="grid-container">      
